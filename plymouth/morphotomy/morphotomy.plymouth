@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=MORPHOTOMY
+Description=Graft line closing; fourteen sutures under load
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/morphotomy
+ScriptFile=/usr/share/plymouth/themes/morphotomy/morphotomy.script

@@ -1,0 +1,148 @@
+# MORPHOTOMY — Plymouth boot theme
+#
+# The incision closes as the boot progresses: a taut arterial seam grows from
+# the centre outward, fourteen sutures drop onto it one by one, and the unit
+# stamp sits underneath. Everything is pre-rendered; the script module only
+# scales and positions images.
+
+Window.SetBackgroundTopColor(0.031, 0.020, 0.024);
+Window.SetBackgroundBottomColor(0.012, 0.008, 0.010);
+
+# ---------------------------------------------------------------- images
+logo.image = Image("logo.png");
+logo.sprite = Sprite(logo.image);
+logo.sprite.SetOpacity(1);
+
+label.image = Image("label.png");
+label.sprite = Sprite(label.image);
+label.sprite.SetOpacity(0.85);
+
+seam.original_image = Image("seam.png");
+seam.image = seam.original_image.Scale(2, seam.original_image.GetHeight());
+seam.sprite = Sprite(seam.image);
+seam.sprite.SetOpacity(1);
+
+stitch.image = Image("stitch.png");
+stitch_hot.image = Image("stitch_hot.png");
+
+st00.sprite = Sprite(stitch.image); st00.sprite.SetOpacity(0);
+st01.sprite = Sprite(stitch.image); st01.sprite.SetOpacity(0);
+st02.sprite = Sprite(stitch.image); st02.sprite.SetOpacity(0);
+st03.sprite = Sprite(stitch.image); st03.sprite.SetOpacity(0);
+st04.sprite = Sprite(stitch.image); st04.sprite.SetOpacity(0);
+st05.sprite = Sprite(stitch.image); st05.sprite.SetOpacity(0);
+st06.sprite = Sprite(stitch.image); st06.sprite.SetOpacity(0);
+st07.sprite = Sprite(stitch.image); st07.sprite.SetOpacity(0);
+st08.sprite = Sprite(stitch.image); st08.sprite.SetOpacity(0);
+st09.sprite = Sprite(stitch.image); st09.sprite.SetOpacity(0);
+st10.sprite = Sprite(stitch.image); st10.sprite.SetOpacity(0);
+st11.sprite = Sprite(stitch.image); st11.sprite.SetOpacity(0);
+st12.sprite = Sprite(stitch.image); st12.sprite.SetOpacity(0);
+st13.sprite = Sprite(stitch_hot.image); st13.sprite.SetOpacity(0);
+
+# ---------------------------------------------------------------- state
+global.progress = 0.0;
+global.fake_progress = 0.0;
+global.frame = 0;
+global.layout_width = 0;
+global.layout_height = 0;
+global.seam_width = 0;
+global.seam_x = 0;
+global.seam_y = 0;
+global.last_width = 0;
+
+global.stitch_count = 14;
+
+# ---------------------------------------------------------------- layout
+fun layout() {
+  global.layout_width = Window.GetWidth();
+  global.layout_height = Window.GetHeight();
+
+  logo.sprite.SetX(global.layout_width / 2 - logo.image.GetWidth() / 2);
+  logo.sprite.SetY(global.layout_height / 2 - logo.image.GetHeight() / 2 - 60);
+
+  global.seam_width = seam.original_image.GetWidth();
+  global.seam_x = global.layout_width / 2 - global.seam_width / 2;
+  global.seam_y = logo.sprite.GetY() + logo.image.GetHeight() + 62;
+
+  seam.sprite.SetPosition(global.seam_x, global.seam_y, 10);
+
+  label.sprite.SetPosition(
+    global.layout_width / 2 - label.image.GetWidth() / 2,
+    global.seam_y + 34,
+    10
+  );
+
+  global.step = global.seam_width / global.stitch_count;
+
+  st00.sprite.SetPosition(global.seam_x + global.step * 0.5,  global.seam_y - 12, 11);
+  st01.sprite.SetPosition(global.seam_x + global.step * 1.5,  global.seam_y - 12, 11);
+  st02.sprite.SetPosition(global.seam_x + global.step * 2.5,  global.seam_y - 12, 11);
+  st03.sprite.SetPosition(global.seam_x + global.step * 3.5,  global.seam_y - 12, 11);
+  st04.sprite.SetPosition(global.seam_x + global.step * 4.5,  global.seam_y - 12, 11);
+  st05.sprite.SetPosition(global.seam_x + global.step * 5.5,  global.seam_y - 12, 11);
+  st06.sprite.SetPosition(global.seam_x + global.step * 6.5,  global.seam_y - 12, 11);
+  st07.sprite.SetPosition(global.seam_x + global.step * 7.5,  global.seam_y - 12, 11);
+  st08.sprite.SetPosition(global.seam_x + global.step * 8.5,  global.seam_y - 12, 11);
+  st09.sprite.SetPosition(global.seam_x + global.step * 9.5,  global.seam_y - 12, 11);
+  st10.sprite.SetPosition(global.seam_x + global.step * 10.5, global.seam_y - 12, 11);
+  st11.sprite.SetPosition(global.seam_x + global.step * 11.5, global.seam_y - 12, 11);
+  st12.sprite.SetPosition(global.seam_x + global.step * 12.5, global.seam_y - 12, 11);
+  # the crooked suture sits half a step out of line
+  st13.sprite.SetPosition(global.seam_x + global.step * 13.5, global.seam_y - 17, 12);
+}
+
+# ---------------------------------------------------------------- drawing
+fun draw_seam(p) {
+  width = Math.Int(global.seam_width * p);
+  if (width < 2) { width = 2; }
+  if (width != global.last_width) {
+    global.last_width = width;
+    seam.image = seam.original_image.Scale(width, seam.original_image.GetHeight());
+    seam.sprite = Sprite(seam.image);
+    seam.sprite.SetPosition(global.seam_x, global.seam_y, 10);
+  }
+
+  # sutures appear as the seam passes them
+  if (p > 0.04) { st00.sprite.SetOpacity(1); }
+  if (p > 0.11) { st01.sprite.SetOpacity(1); }
+  if (p > 0.18) { st02.sprite.SetOpacity(1); }
+  if (p > 0.25) { st03.sprite.SetOpacity(1); }
+  if (p > 0.32) { st04.sprite.SetOpacity(1); }
+  if (p > 0.39) { st05.sprite.SetOpacity(1); }
+  if (p > 0.46) { st06.sprite.SetOpacity(1); }
+  if (p > 0.53) { st07.sprite.SetOpacity(1); }
+  if (p > 0.60) { st08.sprite.SetOpacity(1); }
+  if (p > 0.67) { st09.sprite.SetOpacity(1); }
+  if (p > 0.74) { st10.sprite.SetOpacity(1); }
+  if (p > 0.81) { st11.sprite.SetOpacity(1); }
+  if (p > 0.88) { st12.sprite.SetOpacity(1); }
+  if (p > 0.95) { st13.sprite.SetOpacity(1); }
+}
+
+fun refresh_callback() {
+  if (Window.GetWidth() != global.layout_width || Window.GetHeight() != global.layout_height) {
+    layout();
+  }
+
+  global.frame++;
+
+  # Plymouth often reports no progress at all; keep the seam moving anyway.
+  if (global.fake_progress < 0.97) {
+    global.fake_progress = global.fake_progress + 0.0016;
+  }
+
+  p = global.progress;
+  if (global.fake_progress > p) { p = global.fake_progress; }
+  if (p > 0.995) { p = 0.995; }
+
+  draw_seam(p);
+}
+
+fun progress_callback(progress, time) {
+  global.progress = progress;
+}
+
+layout();
+Plymouth.SetRefreshFunction(refresh_callback);
+Plymouth.SetBootProgressFunction(progress_callback);
