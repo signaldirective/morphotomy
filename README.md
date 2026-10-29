@@ -31,11 +31,13 @@ re-publishes its own Plymouth theme and would otherwise take the splash back.
 | `hyprland.lua` | arterial gradient border, graft shadow, suture/incision curves |
 | `btop.theme` | vitals monitor: cauterised orange titles, bone text |
 | `chromium.theme`, `icons.theme`, `keyboard.rgb` | browser tint, icon theme, LED colour |
-| `backgrounds/1-surgery-bay.webp` | primary wallpaper (artwork supplied in `source/`) |
-| `backgrounds/1-surgery-bay.mp4` | 24 s animated version, loop-safe |
-| `backgrounds/1-surgery-bay-1080.mp4` | battery-friendly variant |
-| `backgrounds/intros/1-surgery-bay.mp4` | 6 s boot intro |
-| `backgrounds/2-specimen-84.*` | alternate: earlier Blender render + dossier overlay |
+| `backgrounds/1-eye.webp` | default wallpaper: isolated eye, quiet dossier |
+| `backgrounds/1-eye.mp4` | 24 s animated version, loop-safe |
+| `backgrounds/1-eye-1080.mp4` | battery-friendly variant |
+| `backgrounds/intros/1-eye.mp4` | 6 s boot intro |
+| `backgrounds/2-surgery-bay.webp` | alternate: surgery-bay artwork |
+| `backgrounds/3-eye-dossier.webp` | alternate: same eye, full dossier overlay |
+| `source/contact-sheet.png` | 15 candidates with the tag overlay, numbered |
 | `unlock.png` | wordmark used by Plymouth, SDDM and the lock screen |
 | `plymouth/morphotomy/` | boot splash: seam closes, fourteen sutures drop in |
 
@@ -44,17 +46,29 @@ by Omarchy from `colors.toml`, so they follow automatically.
 
 ## Wallpapers
 
-The primary wallpaper is artwork supplied in `source/` — a cybernetic surgery
-bay — run through the dossier overlay with `--overlay tag`, which adds only a
-small specimen plate, a barcode and a hairline frame. Art that already carries
-its own typography does not want a second title on top of it.
+No Blender artwork ships any more. The default is a photograph of a single eye
+against black — maximum body horror, minimum interference — with the quiet
+dossier overlay: title, status table, barcode, caption. `3-eye-dossier.webp`
+is the same frame with the full overlay (ruler, corner brackets, ECG) for
+anyone who wants the wallpaper to look like a live monitoring screen.
 
-`2-specimen-84.*` is the earlier Blender render kept as an alternate. It is the
-weakest artwork here and is not the default.
+`2-surgery-bay.webp` is the artwork supplied in `source/`, run through
+`--overlay tag` so the small specimen plate does not fight its own in-world
+typography.
 
-The supplied artwork is 1672×940, so it is upscaled to 2560×1440; a 2K or 4K
-original would be sharper. Anything ≥2560×1440 dropped into `source/` avoids
-that.
+`source/contact-sheet.png` collects fifteen candidates pulled from Wallhaven,
+each with the tag overlay, numbered. To promote one:
+
+```bash
+tools/fetch-candidates.py 15                     # top up source/candidates/
+tools/compose-dossier.py source/candidates/<file> --out backgrounds/1-<name>.webp \
+    --overlay quiet --grade 0.35
+tools/make-wallpaper-video.sh backgrounds/1-<name>.webp
+./install.sh --link && omarchy theme set morphotomy
+```
+
+Candidates are filtered to 16:9-ish, ≥2560×1440, SFW. They are third-party
+artwork: personal desktop use, not redistribution.
 
 Drop candidates into `source/` (an inbox, not shipped) and run:
 
