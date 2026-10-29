@@ -31,13 +31,14 @@ re-publishes its own Plymouth theme and would otherwise take the splash back.
 | `hyprland.lua` | arterial gradient border, graft shadow, suture/incision curves |
 | `btop.theme` | vitals monitor: cauterised orange titles, bone text |
 | `chromium.theme`, `icons.theme`, `keyboard.rgb` | browser tint, icon theme, LED colour |
-| `backgrounds/1-eye.webp` | default wallpaper: isolated eye, quiet dossier |
-| `backgrounds/1-eye.mp4` | 24 s animated version, loop-safe |
-| `backgrounds/1-eye-1080.mp4` | battery-friendly variant |
-| `backgrounds/intros/1-eye.mp4` | 6 s boot intro |
-| `backgrounds/2-surgery-bay.webp` | alternate: surgery-bay artwork |
-| `backgrounds/3-eye-dossier.webp` | alternate: same eye, full dossier overlay |
-| `source/contact-sheet.png` | 15 candidates with the tag overlay, numbered |
+| `backgrounds/1-implantation.webp` | default wallpaper: forced implantation scene |
+| `backgrounds/1-implantation.mp4` | 24 s animated version, loop-safe |
+| `backgrounds/1-implantation-1080.mp4` | battery-friendly variant |
+| `backgrounds/intros/1-implantation.mp4` | 6 s boot intro |
+| `backgrounds/2-surgery-bay.webp` | alternate: surgery bay |
+| `backgrounds/3-eye.webp` | alternate: isolated eye, quiet dossier |
+| `backgrounds/4-eye-dossier.webp` | alternate: eye with the full overlay |
+| `source/contact-sheet.png` | 15 Wallhaven candidates, numbered |
 | `unlock.png` | wordmark used by Plymouth, SDDM and the lock screen |
 | `plymouth/morphotomy/` | boot splash: seam closes, fourteen sutures drop in |
 
@@ -46,15 +47,18 @@ by Omarchy from `colors.toml`, so they follow automatically.
 
 ## Wallpapers
 
-No Blender artwork ships any more. The default is a photograph of a single eye
-against black — maximum body horror, minimum interference — with the quiet
-dossier overlay: title, status table, barcode, caption. `3-eye-dossier.webp`
-is the same frame with the full overlay (ruler, corner brackets, ECG) for
-anyone who wants the wallpaper to look like a live monitoring screen.
+No Blender artwork ships any more. Everything in `backgrounds/` is real
+artwork from `source/`, passed through `compose-dossier.py`.
 
-`2-surgery-bay.webp` is the artwork supplied in `source/`, run through
-`--overlay tag` so the small specimen plate does not fight its own in-world
-typography.
+The default is the forced-implantation scene, in `--overlay tag` mode: the
+artwork already carries its own corporate HUD and slogans, so the overlay only
+adds a small specimen plate, serial and hairline frame. Grading is light
+(`--grade 0.12`) because the art is already on-palette — the point is to unify
+it, not to repaint it.
+
+Alternates: `2-surgery-bay` (same treatment), `3-eye` (quiet overlay on a
+photographic eye), `4-eye-dossier` (same eye with the full HUD for anyone who
+wants the desktop to read as a live monitoring screen).
 
 `source/contact-sheet.png` collects fifteen candidates pulled from Wallhaven,
 each with the tag overlay, numbered. To promote one:
