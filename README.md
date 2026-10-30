@@ -4,31 +4,87 @@ A theme for [Omarchy](https://omarchy.org/) about grafts that were not always
 consented to.
 
 Alternate timeline: cybernetics are cut into living bodies by morphotomists —
-surgeons who are more machine than person. The desktop is the operating bay.
-Bone and dried blood carry the interface; arterial red is the only thing that
-ever lights up, and it means *incision*.
+surgeons who are more machine than person. The desktop is the operating bay of
+Nexus Morphotomy Clinics, a company that sells augmentation as career
+development. Bone and dried blood carry the interface; arterial red is the only
+thing that ever lights up, and it means *incision*.
 
 ![MORPHOTOMY](preview.png)
 
 ## Install
 
 ```bash
-./install.sh                 # copy into ~/.config/omarchy/themes/morphotomy
-./install.sh --link --apply  # symlink (edits apply live) and switch to it now
-./install.sh --plymouth --hook   # custom boot splash + keep it after theme changes
+omarchy theme install https://github.com/signaldirective/morphotomy
 ```
+
+That is the whole install: Omarchy clones the repo to
+`~/.config/omarchy/themes/morphotomy` and applies it. The theme name comes from
+the URL, so it is `morphotomy` for `omarchy theme set` afterwards.
+
+`omarchy theme install` treats a cloned repo as untrusted, and three things
+follow from that which are worth knowing before you go looking for them:
+
+- **No Lua ships.** Every `.lua` in a cloned theme is dropped — `hyprland.lua`
+  included — and regenerated from `colors.toml`. That is why the arterial
+  border gradient lives in `colors.toml` (`hyprland_active_border`) instead of
+  being hard-coded in `hyprland.lua`, and why the animations defined in
+  `hyprland.lua` only apply to a local install.
+- **Window rounding needs its hook.** `hyprland-rounding` holds the corner
+  radius, and Omarchy's regenerated `hyprland.lua` knows nothing about it.
+  Install the hook once, after the theme is in place:
+
+  ```bash
+  omarchy hook install theme-set ~/.config/omarchy/themes/morphotomy/hooks/window-rounding
+  ```
+
+- **Login and boot art is a separate step.** `omarchy theme set` does not touch
+  Plymouth or SDDM. To publish the clinic lockup to the greeter and the
+  boot splash:
+
+  ```bash
+  omarchy plymouth set by theme morphotomy     # sudo; logo + colours
+  ```
+
+  The seam-and-suture animation is a script-module Plymouth theme, which
+  Omarchy has no command for, so it comes from this repo's installer:
+
+  ```bash
+  ~/.config/omarchy/themes/morphotomy/install.sh --plymouth --hook
+  ```
+
+### Local working copy
+
+`install.sh` is for development, not for users. It copies or symlinks the
+checkout into `~/.config/omarchy/themes/morphotomy`:
+
+```bash
+./install.sh                    # copy
+./install.sh --link --apply     # symlink (edits apply live) and switch to it
+./install.sh --plymouth --hook  # custom boot splash, and keep it across theme changes
+./install.sh --force            # replace a clone made by `omarchy theme install`
+```
+
+A theme the user wrote themselves is unrestricted: with `--link` the theme's own
+`hyprland.lua` is staged, so the gradient, curves and rounding come from this
+repo directly rather than from `colors.toml` and the hook.
 
 `--plymouth` needs sudo: it installs a script-module theme into
 `/usr/share/plymouth/themes/morphotomy`, sets it as the default and rebuilds the
-initramfs. `--hook` installs a `theme-set` hook, because Omarchy's theme switch
-re-publishes its own Plymouth theme and would otherwise take the splash back.
+initramfs. `--hook` installs a `theme-set` hook that re-asserts this splash when
+something else claims the Plymouth default — `omarchy plymouth reset`, a stock
+theme switch on an Omarchy version that republishes its own splash, or a system
+update. It is best-effort: a hook cannot prompt for a password, so it only acts
+when sudo is passwordless.
 
 ## What's in it
 
 | File | Purpose |
 |---|---|
 | `colors.toml` | the palette every generated template derives from |
-| `hyprland.lua` | arterial gradient border, graft shadow, suture/incision curves |
+| `hyprland.lua` | arterial gradient border, graft shadow, suture/incision curves (local installs only) |
+| `hyprland-rounding` | window corner radius, read by the hook below |
+| `hooks/window-rounding` | `theme-set` hook: appends that radius to Omarchy's generated `hyprland.lua` |
+| `hooks/theme-set-morphotomy.sh` | `theme-set` hook: puts the custom Plymouth splash back after a theme change |
 | `btop.theme` | vitals monitor: cauterised orange titles, bone text |
 | `chromium.theme`, `icons.theme`, `keyboard.rgb` | browser tint, icon theme, LED colour |
 | `backgrounds/1-implantation.webp` | default wallpaper: forced implantation scene |
@@ -44,12 +100,35 @@ re-publishes its own Plymouth theme and would otherwise take the splash back.
 | `backgrounds/9-heart-diagnostic.mp4` | alternate: fixed heart with 3 callouts |
 | `backgrounds/9-brain-diagnostic.mp4` | alternate: fixed brain with 3 callouts |
 | `source/SURGERY.png` | original branded surgery-room artwork |
-| `source/contact-sheet.png` | 15 Wallhaven candidates, numbered |
-| `unlock.png` | wordmark used by Plymouth, SDDM and the lock screen |
+| `source/nexus-emblem.png` | supplied Nexus Morphotomy emblem, cyan remapped at build |
+| `unlock.png` | clinic lockup: SDDM greeter logo and Plymouth splash centre |
+| `preview-unlock.png` | the login screen, as rendered |
 | `plymouth/morphotomy/` | boot splash: seam closes, fourteen sutures drop in |
 
 Neovim, Alacritty, Kitty, Ghostty, foot, Helix, btop and the rest are generated
 by Omarchy from `colors.toml`, so they follow automatically.
+
+## Login screen
+
+Logging in is the clinic's workstation, not a generic prompt. `unlock.png` is
+the Nexus Morphotomy Clinics lockup; Omarchy publishes it as the SDDM greeter
+logo and draws the Plymouth splash around it, so one mark carries you from boot
+to unlock.
+
+![Nexus Morphotomy Clinics login](preview-unlock.png)
+
+`preview-unlock.png` is the same screen as designed at 2560×1440: operator line,
+credential field, and the bay console running underneath the login. Which parts
+are real matters. The greeter's geometry — logo above a 381×67 field on a flat
+`#080506` field, and the in-session lock's blurred wallpaper — belongs to
+Omarchy, so the preview composes the lockup into that frame rather than
+pretending to replace it. What this repo controls is the lockup, the palette and
+the splash around them.
+
+The emblem is cut from `source/nexus-emblem.png` by `tools/make-login.py`, which
+maps the supplied cyan to arterial red by luminance (so the glow keeps its
+shape) and warms the whites toward bone. Everything else — mark placement,
+tracking, rules, barcode, telemetry — is drawn geometry, seeded and repeatable.
 
 ## Wallpapers
 
@@ -83,11 +162,12 @@ bash tools/make-eye-blink-alternate.sh
 No camera motion, zoom, shake, or audio is used. The blink alternate is based on
 `source/eye-blink-seed.mp4`; intros remain disabled.
 
-`source/contact-sheet.png` collects fifteen candidates pulled from Wallhaven,
-each with the tag overlay, numbered. To promote one:
+`source/contact-sheet.png` is the record of the candidates that were considered;
+the `source/candidates/` inbox itself has been cleared and is not shipped. To
+pull a fresh set and promote one:
 
 ```bash
-tools/fetch-candidates.py 15                     # top up source/candidates/
+tools/fetch-candidates.py 15                     # refill source/candidates/
 tools/compose-dossier.py source/candidates/<file> --out backgrounds/9-<name>.webp \
     --overlay quiet --grade 0.35
 ./install.sh --link && omarchy theme set morphotomy
@@ -129,13 +209,13 @@ Bone on background measures ~12:1. Red is deliberately not used for body text.
 
 ## Regenerating theme elements
 
-The wordmark, Plymouth splash and dossier typography are generated by tools in
-`tools/`. Wallpaper imagery is source art, not a Blender render. The theme ships
+The login lockup, Plymouth splash and dossier typography are generated by tools
+in `tools/`. Wallpaper imagery is source art, not a Blender render. The theme ships
 eight stills plus four opt-in MP4 alternates: diagnostic overlays for eye,
 heart and brain, and the approved quick blink. Background intros remain off.
 
 ```bash
-python3 tools/make-wordmark.py
+python3 tools/make-login.py
 python3 tools/make-plymouth-assets.py
 tools/compose-dossier.py source/your-image.jpg --out backgrounds/9-your-image.webp
 ```
@@ -150,8 +230,16 @@ tools/compose-dossier.py source/your-image.jpg --out backgrounds/9-your-image.we
   risks losing geometry it sets. A hand-tuned bar is the next lever.
 - The Plymouth splash and its hook are the only parts outside `~/.config`, so
   they are the only parts an Omarchy update can disturb.
+- Rounding is stated twice: `hyprland.lua` says `rounding = 2`, `hyprland-rounding`
+  says `8`. With `hooks/window-rounding` installed the hook wins, so 8 is what a
+  cloned install gets; 2 is only what a local `--link` install gets when the hook
+  is not installed.
 - Cursors are not included: `xcursorgen` (package `xorg-xcursorgen`) is not
   installed here, so the scalpel cursor is still to do.
+- The circular emblem in the lockup is derived from supplied artwork that keeps
+  its own rights; `source/nexus-emblem.png` is excluded from install and the
+  derived `unlock.png` is a redrawn composition, not a copy of the original
+  sheet.
 
 ## Licence
 

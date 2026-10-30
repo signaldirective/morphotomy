@@ -38,9 +38,22 @@ def text_width(text, font, tracking=0.0):
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
 
-    # ---- wordmark, pre-scaled for a fast initramfs load
+    # ---- lockup, cropped then pre-scaled for a fast initramfs load
     logo = Image.open(ROOT / "unlock.png").convert("RGBA")
-    logo.thumbnail((760, 400), Image.LANCZOS)
+    # unlock.png carries a terminal-ID line under the lockup for SDDM; the
+    # splash supplies its own seam and label, so cut at the first clear row.
+    alpha = logo.getchannel("A")
+    rows = [alpha.crop((0, y, logo.width, y + 1)).getbbox() is not None
+            for y in range(logo.height)]
+    start = rows.index(True)
+    cut = logo.height
+    for y in range(start, logo.height):
+        if not rows[y]:
+            cut = y
+            break
+    logo = logo.crop((0, 0, logo.width, max(cut, 1)))
+    logo = logo.crop(logo.getbbox())
+    logo.thumbnail((820, 400), Image.LANCZOS)
     logo.save(OUT / "logo.png")
 
     # ---- the seam: a thin arterial line with a hot core and soft glow
@@ -73,7 +86,7 @@ def main():
 
     # ---- unit label under the seam
     small = ImageFont.truetype(BODY, 20)
-    label_text = "MORPHOTOMY UNIT 09  ·  GRAFT 0084  ·  INTEGRITY 61%"
+    label_text = "BAY 09  ·  GRAFT 0084  ·  INTEGRITY 61%"
     w = int(text_width(label_text, small, 3)) + 8
     label = Image.new("RGBA", (w, 30), (0, 0, 0, 0))
     tracked(ImageDraw.Draw(label), (0, 4), label_text, small, MUTED, 3)

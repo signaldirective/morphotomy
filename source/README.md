@@ -1,5 +1,9 @@
 # drop wallpapers here
 
+`nexus-emblem.png` is the supplied Nexus Morphotomy Clinics emblem sheet.
+`tools/make-login.py` cuts the circular figure out of it and remaps the cyan to
+arterial red; nothing else from this directory ships.
+
 Put candidate images in this directory — any size, 2560×1440 or larger is
 ideal. Nothing in `source/` ships with the theme; it is just an inbox.
 

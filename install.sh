@@ -6,6 +6,9 @@
 #   ./install.sh --apply      ...and switch to it now
 #   ./install.sh --plymouth   also install the custom boot splash (sudo)
 #   ./install.sh --hook       re-assert the splash after every theme change
+#   ./install.sh --force      replace a theme installed by `omarchy theme install`
+#
+# Users install with: omarchy theme install https://github.com/signaldirective/morphotomy
 set -euo pipefail
 
 here=$(cd "$(dirname "$0")" && pwd)
@@ -17,6 +20,7 @@ link=false
 apply=false
 plymouth=false
 hook=false
+force=false
 
 for arg in "$@"; do
   case $arg in
@@ -24,14 +28,24 @@ for arg in "$@"; do
     --apply) apply=true ;;
     --plymouth) plymouth=true ;;
     --hook) hook=true ;;
-    -h|--help) sed -n '2,12p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --force) force=true ;;
+    -h|--help) sed -n '2,11p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "unknown flag: $arg" >&2; exit 1 ;;
   esac
 done
 
+# A theme installed with `omarchy theme install` is a git clone. Replacing it
+# with a copy would silently end its ability to update, so only do that on
+# request -- the normal user install is the omarchy command, not this script.
+if [[ -d $target/.git ]] && ! $force; then
+  echo "$target is a git clone (installed with 'omarchy theme install')." >&2
+  echo "Remove it with 'omarchy theme remove $name' first, or pass --force to replace it." >&2
+  exit 1
+fi
+
 missing=()
 [[ -f $here/colors.toml ]] || missing+=("colors.toml")
-[[ -f $here/backgrounds/1-specimen-84.webp ]] || missing+=("backgrounds/1-specimen-84.webp")
+[[ -f $here/backgrounds/1-implantation.webp ]] || missing+=("backgrounds/1-implantation.webp")
 [[ -f $here/unlock.png ]] || missing+=("unlock.png")
 if (( ${#missing[@]} )); then
   echo "missing theme files: ${missing[*]}" >&2
