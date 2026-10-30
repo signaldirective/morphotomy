@@ -103,10 +103,28 @@ when sudo is passwordless.
 | `source/nexus-emblem.png` | supplied Nexus Morphotomy emblem, cyan remapped at build |
 | `unlock.png` | clinic lockup: SDDM greeter logo and Plymouth splash centre |
 | `preview-unlock.png` | the login screen, as rendered |
+| `about.txt` | braille mark for the About screen, 52 columns |
+| `screensaver.txt` | braille mark for the idle screensaver, 160 columns |
 | `plymouth/morphotomy/` | boot splash: seam closes, fourteen sutures drop in |
 
 Neovim, Alacritty, Kitty, Ghostty, foot, Helix, btop and the rest are generated
 by Omarchy from `colors.toml`, so they follow automatically.
+
+## About and screensaver
+
+`about.txt` and `screensaver.txt` are braille renderings of the clinic mark, cut
+to the two widths Omarchy expects. Omarchy does not read them from a theme — it
+reads `~/.config/omarchy/branding/` — so copy them in once after installing:
+
+```bash
+mkdir -p ~/.config/omarchy/branding
+cp about.txt screensaver.txt ~/.config/omarchy/branding/
+omarchy launch about            # check the About screen
+omarchy launch screensaver      # check the idle screen
+```
+
+`omarchy branding about text` and `omarchy branding screensaver text` open the
+files in an editor; `... reset` puts Omarchy's own mark back.
 
 ## Login screen
 
