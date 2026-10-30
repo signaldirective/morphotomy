@@ -4,17 +4,14 @@ Put candidate images in this directory — any size, 2560×1440 or larger is
 ideal. Nothing in `source/` ships with the theme; it is just an inbox.
 
 ```bash
-# still wallpaper with the full dossier overlay
+# full dossier still
 tools/compose-dossier.py source/whatever.jpg \
-    --out backgrounds/1-whatever.webp \
+    --out backgrounds/9-whatever.webp \
     --title "SPECIMEN 84" \
-    --preview /tmp/check.png
+    --preview /home/ro/.hermes/cache/scratch/check.png
 
-# quieter variant: title + metadata + barcode, no grid/ECG/ruler
-tools/compose-dossier.py source/whatever.jpg --overlay quiet --out backgrounds/2-alt.webp
-
-# animate whatever you just composed
-tools/make-wallpaper-video.sh backgrounds/1-whatever.webp
+# quieter static variant: title + metadata + barcode, no grid/ECG/ruler
+tools/compose-dossier.py source/whatever.jpg --overlay quiet --out backgrounds/9-alt.webp
 ```
 
 `compose-dossier.py --help` lists the rest: `--grade` (how hard to push the

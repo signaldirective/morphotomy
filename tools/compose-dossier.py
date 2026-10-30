@@ -168,6 +168,8 @@ def main():
     ap.add_argument("--subtitle", default="MORPHOTOMY UNIT 09")
     ap.add_argument("--caption", default="GRAFTED UNDER PROTEST")
     ap.add_argument("--serial", default="0084-AC-61")
+    ap.add_argument("--trace-label", default="CARDIAC SYNC · 62 BPM · LEAD II")
+    ap.add_argument("--timestamp-label", default="2026-03-14  04:12:07  ·  SLOT 84  ·  UNIT 09")
     ap.add_argument("--row", action="append", default=[], help="KEY=VALUE, repeatable")
     ap.add_argument("--overlay", choices=["full", "quiet", "minimal", "tag"], default="full")
     ap.add_argument("--anchor", default="auto", choices=["auto", "left", "right", "none"])
@@ -257,8 +259,8 @@ def main():
         overlay.alpha_composite(ruler(size, ruler_x, int(h * 0.30), int(h * 0.78), (110, 60, 62)))
         overlay.alpha_composite(ecg(size, h - int(h * 0.10), ARTERIAL, args.seed))
         draw = ImageDraw.Draw(overlay)
-        tracked(draw, (120, h - int(h * 0.062)), "CARDIAC SYNC · 62 BPM · LEAD II", micro_font, MUTED, 2)
-        tracked(draw, (120, h - int(h * 0.17)), "2026-03-14  04:12:07  ·  SLOT 84  ·  UNIT 09", micro_font, MUTED, 2)
+        tracked(draw, (120, h - int(h * 0.062)), args.trace_label, micro_font, MUTED, 2)
+        tracked(draw, (120, h - int(h * 0.17)), args.timestamp_label, micro_font, MUTED, 2)
 
     if args.overlay != "minimal":
         code, end_x = barcode(size, w - margin - int(w * 0.16), h - int(h * 0.19), BONE, args.seed)

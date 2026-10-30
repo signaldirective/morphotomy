@@ -32,12 +32,18 @@ re-publishes its own Plymouth theme and would otherwise take the splash back.
 | `btop.theme` | vitals monitor: cauterised orange titles, bone text |
 | `chromium.theme`, `icons.theme`, `keyboard.rgb` | browser tint, icon theme, LED colour |
 | `backgrounds/1-implantation.webp` | default wallpaper: forced implantation scene |
-| `backgrounds/1-implantation.mp4` | 24 s animated version, loop-safe |
-| `backgrounds/1-implantation-1080.mp4` | battery-friendly variant |
-| `backgrounds/intros/1-implantation.mp4` | 6 s boot intro |
 | `backgrounds/2-surgery-bay.webp` | alternate: surgery bay |
 | `backgrounds/3-eye.webp` | alternate: isolated eye, quiet dossier |
 | `backgrounds/4-eye-dossier.webp` | alternate: eye with the full overlay |
+| `backgrounds/5-hand.webp` | Specimen 311, hand with full dossier |
+| `backgrounds/6-heart.webp` | user-supplied Specimen 217, existing HUD preserved |
+| `backgrounds/7-brain.webp` | user-supplied Specimen 443, existing HUD preserved |
+| `backgrounds/8-surgery.webp` | surgery room, existing in-world HUD preserved |
+| `backgrounds/9-eye-diagnostic.mp4` | alternate: fixed eye with 2 animated callouts |
+| `backgrounds/9-eye-blink.mp4` | alternate: brief eye blink, repeated every 8 s |
+| `backgrounds/9-heart-diagnostic.mp4` | alternate: fixed heart with 3 callouts |
+| `backgrounds/9-brain-diagnostic.mp4` | alternate: fixed brain with 3 callouts |
+| `source/SURGERY.png` | original branded surgery-room artwork |
 | `source/contact-sheet.png` | 15 Wallhaven candidates, numbered |
 | `unlock.png` | wordmark used by Plymouth, SDDM and the lock screen |
 | `plymouth/morphotomy/` | boot splash: seam closes, fourteen sutures drop in |
@@ -47,52 +53,66 @@ by Omarchy from `colors.toml`, so they follow automatically.
 
 ## Wallpapers
 
-No Blender artwork ships any more. Everything in `backgrounds/` is real
-artwork from `source/`, passed through `compose-dossier.py`.
+No Blender artwork ships any more. The eight WebP stills remain the default
+choices. Four opt-in MP4 alternatives add only diagnostic callouts or the brief
+eye blink; they do not zoom, shake, or repaint the source. Background intros
+remain disabled.
 
-The default is the forced-implantation scene, in `--overlay tag` mode: the
-artwork already carries its own corporate HUD and slogans, so the overlay only
-adds a small specimen plate, serial and hairline frame. Grading is light
-(`--grade 0.12`) because the art is already on-palette — the point is to unify
-it, not to repaint it.
+The default is the forced-implantation still, in `--overlay tag` mode. `5-hand`
+uses a Pexels prosthetic-hand photo with the custom Specimen 311 dossier.
+`6-heart` and `7-brain` are your pre-branded dossier images; their existing type
+is preserved. `8-surgery` is your branded surgery-room image. Original PNGs are
+kept in `source/`.
 
-Alternates: `2-surgery-bay` (same treatment), `3-eye` (quiet overlay on a
-photographic eye), `4-eye-dossier` (same eye with the full HUD for anyone who
-wants the desktop to read as a live monitoring screen).
+The hand source photo is Pexels #7688766:
+https://www.pexels.com/photo/close-up-photo-of-a-prosthetic-arm-7688766/.
+
+## Diagnostic HUD animations
+
+`tools/render-diagnostic-hud.py` draws a separate transparent layer over a still;
+the base image stays fixed and unchanged. The eye uses two callouts; heart and
+brain use three each. All three videos begin and end on the untouched still.
+
+```bash
+python3 tools/render-diagnostic-hud.py tools/diagnostics/eye.json --out /tmp/eye.mp4
+python3 tools/render-diagnostic-hud.py tools/diagnostics/heart.json --out /tmp/heart.mp4
+python3 tools/render-diagnostic-hud.py tools/diagnostics/brain.json --out /tmp/brain.mp4
+bash tools/make-eye-blink-alternate.sh
+```
+
+No camera motion, zoom, shake, or audio is used. The blink alternate is based on
+`source/eye-blink-seed.mp4`; intros remain disabled.
 
 `source/contact-sheet.png` collects fifteen candidates pulled from Wallhaven,
 each with the tag overlay, numbered. To promote one:
 
 ```bash
 tools/fetch-candidates.py 15                     # top up source/candidates/
-tools/compose-dossier.py source/candidates/<file> --out backgrounds/1-<name>.webp \
+tools/compose-dossier.py source/candidates/<file> --out backgrounds/9-<name>.webp \
     --overlay quiet --grade 0.35
-tools/make-wallpaper-video.sh backgrounds/1-<name>.webp
 ./install.sh --link && omarchy theme set morphotomy
 ```
 
-Candidates are filtered to 16:9-ish, ≥2560×1440, SFW. They are third-party
-artwork: personal desktop use, not redistribution.
+Candidates are filtered to 16:9-ish, ≥2560×1440, SFW. The project owner has
+confirmed redistribution rights for all image assets included in this beta;
+retain any per-image attribution or license terms when reusing them.
 
-Drop candidates into `source/` (an inbox, not shipped) and run:
+Drop candidates into `source/` (an inbox, not shipped) and make a still:
 
 ```bash
-tools/compose-dossier.py source/yours.jpg --out backgrounds/1-yours.webp \
-    --title "SPECIMEN 84" --preview /tmp/check.png
-tools/make-wallpaper-video.sh backgrounds/1-yours.webp   # 1440p, 1080p, 6 s intro
+tools/compose-dossier.py source/yours.jpg --out backgrounds/9-yours.webp \
+    --title "SPECIMEN 84" --preview /home/ro/.hermes/cache/scratch/check.png
 ```
 
 `compose-dossier.py` cover-crops to 2560×1440, grades the picture into the
-palette, measures local variance to find the quietest part of the frame and
-puts the dossier block there, then lays on the title rule, metadata rows,
-ruler, barcode and ECG trace. Styles: `--overlay full|quiet|minimal`;
-`--anchor left|right|none` overrides the automatic placement; `--grade 0..1`
-controls how hard the picture is pushed down. Everything is seeded, so a rerun
-is byte-identical.
+palette, finds a quiet region for the type, and can add the title, metadata,
+ruler, barcode and ECG trace. Styles: `--overlay full|quiet|minimal|tag`;
+`--anchor left|right|none` overrides placement; `--grade 0..1` controls grading.
+`--trace-label` and `--timestamp-label` customize the lower telemetry. Everything
+is seeded for repeatable renders.
 
-Video backgrounds are played by `owe-render` (mpv) on this Omarchy build. If the
-desktop goes black after switching, the mp4 is probably truncated — check with
-`ffprobe` and re-run the encoder.
+Background intros are disabled with `omarchy theme bg intro disable`. The
+still WebPs remain available beside the four explicit MP4 alternates.
 
 ## Palette
 
@@ -107,28 +127,24 @@ green        #5f8f6a   vitals (kept green on purpose, it has to read instantly)
 
 Bone on background measures ~12:1. Red is deliberately not used for body text.
 
-## Regenerating the art
+## Regenerating theme elements
 
-Everything visual is generated from code in `tools/`:
+The wordmark, Plymouth splash and dossier typography are generated by tools in
+`tools/`. Wallpaper imagery is source art, not a Blender render. The theme ships
+eight stills plus four opt-in MP4 alternates: diagnostic overlays for eye,
+heart and brain, and the approved quick blink. Background intros remain off.
 
 ```bash
-python3 tools/make-wordmark.py                       # unlock.png
-env -i PATH=/usr/bin:/bin /usr/bin/blender -b \
-  -P tools/render-specimen.py -- backgrounds/.render-specimen84.png 2560 48
-python3 tools/compose-specimen.py backgrounds/.render-specimen84.png \
-  backgrounds/1-specimen-84.webp
-python3 tools/make-plymouth-assets.py                # splash assets
-tools/make-wallpaper-video.sh                        # mp4 + 1080p + boot intro
+python3 tools/make-wordmark.py
+python3 tools/make-plymouth-assets.py
+tools/compose-dossier.py source/your-image.jpg --out backgrounds/9-your-image.webp
 ```
-
-Blender is invoked with a scrubbed environment on purpose: on this machine a
-plain `blender -b` picks the wrong Python out of `PATH` and dies on `import
-math`.
 
 ## Caveats
 
-- The animated wallpaper is decoded continuously by Quickshell. The 1080p
-  variant exists for laptops; `omarchy theme bg next` switches to the still.
+- `omarchy theme bg next` cycles through eight stills and four explicit
+  motion alternates; intros are disabled so selecting one never plays a second
+  intro clip.
 - No `shell.toml` ships with this theme: Omarchy's generated one already
   derives bar and lock colours from `colors.toml`, and shipping a partial file
   risks losing geometry it sets. A hand-tuned bar is the next lever.
@@ -139,5 +155,5 @@ math`.
 
 ## Licence
 
-MIT. The specimen render and wordmark are generated by the scripts in `tools/`;
-no stock imagery is used.
+MIT applies to the theme scripts and original code. Third-party or user-supplied
+wallpaper art retains its own source/license; `source/` is excluded from install.

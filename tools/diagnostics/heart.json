@@ -1,0 +1,58 @@
+{
+  "source": "backgrounds/6-heart.webp",
+  "fps": 24,
+  "duration": 14.0,
+  "font": "/home/ro/.local/share/fonts/IosevkaNerdFontMono-Regular.ttf",
+  "font_size": 30,
+  "tracking": 1.2,
+  "line_gap": 44,
+  "line_width": 2,
+  "line_rgba": [211, 199, 190, 215],
+  "text_rgba": [244, 234, 225, 250],
+  "value_rgba": [244, 234, 225, 245],
+  "accent_rgba": [255, 46, 61, 235],
+  "callouts": [
+    {
+      "anchor": [0.52, 0.28],
+      "elbows": [[0.66, 0.28]],
+      "label": [0.70, 0.20],
+      "lines": ["ARTERIAL MANIFOLD", "VESSEL COUPLERS"],
+      "start": 1.2,
+      "line_duration": 0.55,
+      "type_delay": 0.08,
+      "type_rate": 24,
+      "hold_until": 10.0,
+      "erase_rate": 34,
+      "erase_duration": 1.1,
+      "retract_duration": 0.3
+    },
+    {
+      "anchor": [0.39, 0.45],
+      "elbows": [[0.32, 0.45]],
+      "label": [0.25, 0.46],
+      "lines": ["PULSE DRIVE", "ACTUATOR: ENGAGED"],
+      "start": 2.0,
+      "line_duration": 0.55,
+      "type_delay": 0.08,
+      "type_rate": 24,
+      "hold_until": 9.4,
+      "erase_rate": 34,
+      "erase_duration": 1.1,
+      "retract_duration": 0.3
+    },
+    {
+      "anchor": [0.53, 0.68],
+      "elbows": [[0.65, 0.68]],
+      "label": [0.70, 0.65],
+      "lines": ["CORONARY LATTICE", "FLOW: DETECTED"],
+      "start": 2.8,
+      "line_duration": 0.55,
+      "type_delay": 0.08,
+      "type_rate": 24,
+      "hold_until": 8.8,
+      "erase_rate": 34,
+      "erase_duration": 1.1,
+      "retract_duration": 0.3
+    }
+  ]
+}
